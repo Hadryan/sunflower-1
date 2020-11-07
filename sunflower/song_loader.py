@@ -8,19 +8,27 @@ ALLOWED_EXTENSIONS = {"mp3", "wav"}
 
 
 class Song:
-    def __init__(self, filelike):
+    def __init__(self, filelike, extension):
         """Creates a Song object.
         """
 
+        ######################
         # Basic audio features
+
         self.waveform = None
-        self.mono_waveform = None  # to remove ?
+        self.extension = None
         self.channels = None
         self.sr = None
         self.sample_width = None
 
-        self.load_from_filelike(filelike, "wav")
-        # self.process_song()
+        self.mono_waveform = None  # to remove ?
+
+        self.load_from_filelike(filelike, extension)
+
+        #################
+        # Processing song
+
+        self.process_song()
 
         # Features
         self.tempo = None
@@ -28,6 +36,8 @@ class Song:
 
     def load_from_filelike(self, filelike, extension: str):
         """Filelike to librosa."""
+
+        self.extension = extension
 
         if extension == "mp3":
             a = pydub.AudioSegment.from_mp3(filelike)
@@ -54,6 +64,12 @@ class Song:
             "float32"
         )
         self.sr = a.frame_rate
+
+    def print_attributes(self) -> None:
+        """Print attributes of the object."""
+
+        attrs = vars(song)
+        print(", ".join("%s: %s" % item for item in attrs.items()))
 
     def process_song(self) -> None:
         """Removes silence at the beginning of the song."""
@@ -108,12 +124,13 @@ def load_from_disk(file_path: str):
             f"File extension not allowed. Allowed extensions :{ALLOWED_EXTENSIONS}"
         )
 
-    print(extension)
-
     data_song = io.BytesIO(f.read())
 
-    return data_song
+    return data_song, extension
 
 
-load_from_disk("data/examplesong.wav")
+raw_audio, extension = load_from_disk("data/examplesong.wav")
 
+song = Song(raw_audio, extension)
+
+song.print_attributes()
