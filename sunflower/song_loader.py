@@ -2,7 +2,7 @@ import io
 import pydub
 import numpy as np
 import soundfile as sf
-import librosa 
+import librosa
 
 ALLOWED_EXTENSIONS = {"mp3", "wav"}
 
