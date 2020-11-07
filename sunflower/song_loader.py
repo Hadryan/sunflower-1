@@ -30,10 +30,6 @@ class Song:
 
         self.process_song()
 
-        # Features
-        self.tempo = None
-        self.beat_frames = None
-
     def load_from_filelike(self, filelike, extension: str):
         """Filelike to librosa."""
 
@@ -68,25 +64,13 @@ class Song:
     def print_attributes(self) -> None:
         """Print attributes of the object."""
 
-        attrs = vars(song)
+        attrs = vars(self)
         print(", ".join("%s: %s" % item for item in attrs.items()))
 
     def process_song(self) -> None:
         """Removes silence at the beginning of the song."""
 
         self.waveform, _ = librosa.effects.trim(self.waveform)
-
-    def detect_tempo(self):
-        """Detects tempo of a track.
-        """
-
-        if (self.sr is None) or (self.waveform is None):
-            raise ValueError("No song was loaded.")
-
-        # Detect tempo
-        self.tempo, self.beat_frames = librosa.beat.beat_track(
-            y=self.mono_waveform, sr=self.sr, tightness=100
-        )
 
     def export_wav(self):
         sf.write(
@@ -127,10 +111,3 @@ def load_from_disk(file_path: str):
     data_song = io.BytesIO(f.read())
 
     return data_song, extension
-
-
-raw_audio, extension = load_from_disk("data/examplesong.wav")
-
-song = Song(raw_audio, extension)
-
-song.print_attributes()
