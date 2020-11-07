@@ -9,8 +9,4 @@ def export_wav(song: Song):
     --- Just used for tests atm ---
     """
 
-    sf.write(
-        "../data/processedfile.wav",
-        song.waveform,
-        song.sr,
-    )
+    sf.write("../data/processedfile.wav", song.waveform, song.sr, subtype="FLOAT")

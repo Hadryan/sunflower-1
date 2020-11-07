@@ -1,8 +1,8 @@
-import librosa
 import io
 import pydub
 import numpy as np
 import soundfile as sf
+import librosa 
 
 ALLOWED_EXTENSIONS = {"mp3", "wav"}
 
@@ -49,8 +49,11 @@ class Song:
 
         if self.channels == 2:
 
-            self.channels = 2
             waveform = waveform.reshape((-1, 2)).astype("float32")
+
+        else:
+
+            waveform = waveform.astype("float32")
 
         # Normalization
         waveform = waveform / (self.sample_width ** 15)
@@ -70,6 +73,7 @@ class Song:
         """Removes silence at the beginning of the song."""
 
         self.waveform, _ = librosa.effects.trim(self.waveform)
+
 
 def allowed_file(filename: str) -> (bool, str):
     """Check if the file extension is allowed."""

@@ -1,5 +1,5 @@
 from .song_loader import Song
-
+import librosa
 
 class SongAnalyzer:
     def __init__(self, song: Song):
