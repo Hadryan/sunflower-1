@@ -4,16 +4,20 @@ import pydub
 import numpy as np
 import soundfile as sf
 
+ALLOWED_EXTENSIONS = {"mp3", "wav"}
+
 
 class Song:
     def __init__(self, filelike):
         """Creates a Song object.
         """
 
+        # Basic audio features
         self.waveform = None
-        self.mono_waveform = None
+        self.mono_waveform = None  # to remove ?
+        self.channels = None
         self.sr = None
-        self.bytes = filelike
+        self.sample_width = None
 
         self.load_from_filelike(filelike, "wav")
         # self.process_song()
@@ -21,8 +25,6 @@ class Song:
         # Features
         self.tempo = None
         self.beat_frames = None
-
-        self.detect_tempo()
 
     def load_from_filelike(self, filelike, extension: str):
         """Filelike to librosa."""
@@ -37,20 +39,24 @@ class Song:
         # Converting to float32 for librosa
         waveform = np.array(a.get_array_of_samples())
 
+        self.sample_width = a.sample_width
+        self.channels = 1
+
         if a.channels == 2:
+
+            self.channels = 2
             waveform = waveform.reshape((-1, 2)).astype("float32")
 
-        a.export("data/new.mp3", format="mp3")
-
+        # Normalization
+        waveform = waveform / self.channels ** 15
         self.waveform = waveform
         self.mono_waveform = np.array(a.set_channels(1).get_array_of_samples()).astype(
             "float32"
         )
         self.sr = a.frame_rate
 
-    def process_song(self):
-        """Removes silence at the beginning of the song.
-        """
+    def process_song(self) -> None:
+        """Removes silence at the beginning of the song."""
 
         self.waveform, _ = librosa.effects.trim(self.waveform)
 
@@ -63,7 +69,7 @@ class Song:
 
         # Detect tempo
         self.tempo, self.beat_frames = librosa.beat.beat_track(
-            y=self.mono_waveform, sr=self.sr,tightness=100
+            y=self.mono_waveform, sr=self.sr, tightness=100
         )
 
     def export_wav(self):
@@ -74,7 +80,40 @@ class Song:
         )
 
 
-data_song = io.BytesIO(open("data/examplesong.wav", "rb").read())
-beat = Song(data_song)
-print(round(beat.tempo, 0))
+def allowed_file(filename: str) -> (bool, str):
+    """Check if the file extension is allowed."""
+
+    extension = ""
+    allowed = False
+
+    if "." in filename:
+
+        extension = filename.rsplit(".", 1)[1].lower()
+
+        allowed = filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+    return (allowed, extension)
+
+
+def load_from_disk(file_path: str):
+    """Load a song from disk to emulate a GET request"""
+
+    f = open(file_path, "rb")
+    filename = f.name
+
+    allowed, extension = allowed_file(filename)
+
+    if not allowed:
+        raise ValueError(
+            f"File extension not allowed. Allowed extensions :{ALLOWED_EXTENSIONS}"
+        )
+
+    print(extension)
+
+    data_song = io.BytesIO(f.read())
+
+    return data_song
+
+
+load_from_disk("data/examplesong.wav")
 
