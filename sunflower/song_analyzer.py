@@ -1,4 +1,4 @@
-from song_loader import Song
+from .song_loader import Song
 
 
 class SongAnalyzer:

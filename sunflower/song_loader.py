@@ -16,12 +16,11 @@ class Song:
         # Basic audio features
 
         self.waveform = None
+        self.mono_waveform = None
         self.extension = None
         self.channels = None
         self.sr = None
         self.sample_width = None
-
-        self.mono_waveform = None  # to remove ?
 
         self.load_from_filelike(filelike, extension)
 
@@ -46,15 +45,15 @@ class Song:
         waveform = np.array(a.get_array_of_samples())
 
         self.sample_width = a.sample_width
-        self.channels = 1
+        self.channels = a.channels
 
-        if a.channels == 2:
+        if self.channels == 2:
 
             self.channels = 2
             waveform = waveform.reshape((-1, 2)).astype("float32")
 
         # Normalization
-        waveform = waveform / self.channels ** 15
+        waveform = waveform / (self.sample_width ** 15)
         self.waveform = waveform
         self.mono_waveform = np.array(a.set_channels(1).get_array_of_samples()).astype(
             "float32"
@@ -71,14 +70,6 @@ class Song:
         """Removes silence at the beginning of the song."""
 
         self.waveform, _ = librosa.effects.trim(self.waveform)
-
-    def export_wav(self):
-        sf.write(
-            "data/processedfile.wav",
-            self.waveform.astype(np.float32, order="C") / 32768.0,
-            self.sr,
-        )
-
 
 def allowed_file(filename: str) -> (bool, str):
     """Check if the file extension is allowed."""
