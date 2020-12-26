@@ -8,8 +8,21 @@ ALLOWED_EXTENSIONS = {"mp3", "wav"}
 
 
 class Song:
-    def __init__(self, filelike, extension):
+    def __init__(self, filelike, extension:str):
         """Creates a Song object.
+
+        :param filelike: Song in bytes
+        :param extension: Extension of the song
+        Extensions available : ['mp3','wav']
+
+        Attributes:
+
+        waveform: Numpy array representing the song (stereo)
+        mono_waveform: Numpy array representing the song (mono)
+        extension: Extension of the file
+        channels: Number of channels of the song
+        sr: Sample rate
+        sample_width: Sample width
         """
 
         ######################
@@ -30,7 +43,12 @@ class Song:
         self.process_song()
 
     def load_from_filelike(self, filelike, extension: str):
-        """Filelike to librosa."""
+        """Filelike to librosa.
+        
+        :param filelike: Song in bytes
+        :param extension: Extension of the song
+        Extensions available : ['mp3','wav']
+        """
 
         self.extension = extension
 
